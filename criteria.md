@@ -57,6 +57,8 @@ in at least 4 of 5 tries.
 
 ## 4. Something about your chunks
 
+None of the chunks are more than 200 characters.
+
 <!-- YOU WRITE THIS ONE.
 
      How would you know if your chunks were the right size? Name something
@@ -72,6 +74,13 @@ in at least 4 of 5 tries.
 
 
 **Why this target:**
+<!-- I chose 200 hundred characters as the maximum chunk size because chunks
+of any size that is over 200 characters would likely be unecessarily large in 
+comparison to what's actually needed to answer the questions I've set to be part
+of 'questions.py'.
+
+
+-->
 
 
 
@@ -79,6 +88,7 @@ in at least 4 of 5 tries.
 
 ## 5. Your choice
 
+Response time doesn't exceed 20 seconds.
 <!-- YOU WRITE THIS ONE TOO.
 
      Pick something you actually care about getting right. It could be about
@@ -90,6 +100,10 @@ in at least 4 of 5 tries.
 
 
 **Why this target:**
+<!-- There should definitely be a set limit for how long it can take to get a response
+before the search times out, otherwise it could take forever. Also, any more than 20 seconds is inconvenient and it might be better to simply restart the search or decide that the documents don't contain the necessary information for the question. Any lower of a time might not be long enough for the search to get a result.
+
+-->
 
 
 
