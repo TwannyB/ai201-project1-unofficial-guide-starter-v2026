@@ -57,7 +57,7 @@ in at least 4 of 5 tries.
 
 ## 4. Something about your chunks
 
-None of the chunks are more than 200 characters.
+None of the chunks are more than 350 characters.
 
 <!-- YOU WRITE THIS ONE.
 
