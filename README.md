@@ -1,6 +1,6 @@
 # The Unofficial Guide
 
-<!-- Replace this line with your name and which corpus you picked. -->
+<!-- City Guides Corpus -->
 
 > **This file is your submission.** Fill it in as you go — most sections get
 > written during the milestone that produces them, not at the end.
@@ -41,6 +41,9 @@
      more than pretending you got it right first time.
 
      Milestone 3. -->
+
+I selected 350 characters to be the chunk size. I selected 350 because most of the questions I have to test the RAG require the subtitle within the city guide, and then usually about 2-4 sentences. In the sections that answer my five test questions, all five sections are between 260 and 332 characters in length, so 350 would keep all 5 answers, and hopefully
+the answers to other potential questions as well, intact. At 300, two of the five answers would be cut. 
 
 ## Sample Chunks
 
