@@ -56,29 +56,46 @@ the answers to other potential questions as well, intact. At 300, two of the fiv
 
      Milestone 3. -->
 
-**Chunk 1** — source: `` — produced by: ``
+**Chunk 1** — source: guide_accessibility.md#0 `` — produced by: `` chunker.py::split_documents
 
 ```
+# Getting around the region with limited mobility
+
+An honest assessment rather than a promotional one. Some of these places are
+difficult and it is better to know in advance.
 ```
 
-**Chunk 2** — source: `` — produced by: ``
+**Chunk 2** — source: guide_corry_vale.md#4 `` — produced by: `` chunker.py::split_documents
 
 ```
+## What to see
+
+The valley itself is the attraction. The footpath network is dense and well marked, and a circuit taking in three of the four villages is about nine miles with 500 metres of ascent. The chapel in the second village is 12th century and always unlocked.
 ```
 
-**Chunk 3** — source: `` — produced by: ``
+**Chunk 3** — source: guide_givens_mill.md#2 `` — produced by: `` chunker.py::split_documents
 
 ```
+## Getting around
+
+Everything is on one street along the river. The mill is at one end and the church at the other, eight minutes apart. The riverside path continues in both directions for as far as you want to walk.
 ```
 
-**Chunk 4** — source: `` — produced by: ``
+**Chunk 4** — source: guide_marchwood.md#2 `` — produced by: `` chunker.py::split_documents
 
 ```
+## Getting around
+
+A tram network of four lines, running every 8 minutes on weekdays and every 15 at weekends, until midnight. A day ticket costs less than two single fares and nobody tells you this at the machine. The centre is walkable but the interesting districts are not adjacent to each other.
 ```
 
-**Chunk 5** — source: `` — produced by: ``
+**Chunk 5** — source: guide_seasons.md#0`` — produced by: `` chunker.py::split_documents
 
 ```
+# When to visit the region
+
+For each one, ask: could someone answer a question using only this,
+without reading what came before or after?
 ```
 
 ## Sample Answer
