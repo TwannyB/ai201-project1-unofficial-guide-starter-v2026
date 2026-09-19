@@ -26,11 +26,15 @@
      this repo.
 
      Milestone 5. -->
+     
+     For my project, I selected the City Guides corpus. The system answers questions about specific cities and locations,
+     especially questions that tourists or visitors might have about the city. These questions might include
+     when the city is a busy place to book a stay in, what sights there are to see in the city, or when trains in the city run. 
 
 ## Chunking Strategy
 
-**Chunk size:**
-**Overlap:**
+**Chunk size: 350**
+**Overlap: 105**
 
 <!-- What about YOUR documents made you pick these numbers? Short posts and
      long sectioned guides don't want the same chunking, and "800 seemed
@@ -43,7 +47,7 @@
      Milestone 3. -->
 
 I selected 350 characters to be the chunk size. I selected 350 because most of the questions I have to test the RAG require the subtitle within the city guide, and then usually about 2-4 sentences. In the sections that answer my five test questions, all five sections are between 260 and 332 characters in length, so 350 would keep all 5 answers, and hopefully
-the answers to other potential questions as well, intact. At 300, two of the five answers would be cut. 
+the answers to other potential questions as well, intact. At 300, two of the five answers would be cut. As far as the actual chunking strategy, started with one method, then Claude helped me improve the method twice. The first method, which I typed by hand, split the text of each document by "\n\n##" characters, which inside of each city guide seperates the guide's subsections. I chose those as the split becuase answers to questions tend to be condensed into subsections. I then realized that I didn't actually utilize the set chunk size and chunk overlap variables I set in config.py and had trouble implementing it myself, so Claude implemented a new chunking strategy for me. After testing Claude's method, I then realized that the system was still only giving slightly relevant answers, which Claude suggested was becuase each chunk didn't always explicitly reference the exact city in sentences where answers would be found. Claude then implemented a strategy that attached the title of each document to each chunk(which was the name of the city the chunk's information referred to.)
 
 ## Sample Chunks
 
@@ -164,8 +168,11 @@ The group of distances for the correct answers ranged from 0.191 to 0.598, while
      Milestone 5. -->
 
 **1.**
+I asked Claude to write the chunking function for me twice. The first time, I'd already handcoded a chunking method that split the documents into chunks wherever there was the pattern "\n\n##", which I observed was where subsection separations were. I then realized that I didn't include the set chunk size and chunk overlap, so I had Claude implement a strategy that followed both of those preset config variables. I then had Claude investigate why the answers I was getting from the system still seeemed to only be slightly relevant to the questions that I was asking, and Claude suggested that the chunking process currently removes the exact city the chunk's information was referring to. I then had Claude implement a new strategy that built off of the old strategy by appending the title(city) of the chunk to the beginning of each chunk. This improved answers drastically, and I didn't make any changes to new strategy Claude wrote for me. 
 
 **2.**
+I didn't intend for Claude to do this, but I asked Claude a question about the "retrieve" command in the terminal written for the project and why it didn't return the full chunk with it, and Claude created a "inspect_retrieval.py" for me to see the embedding distance from the query, along with the full chunk. I didn't make any changes to what Claude created.
+
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
