@@ -149,22 +149,37 @@ def _hard_cut(text: str, budget: int) -> list[str]:
     return [p for p in pieces if p]
 
 
-def _split_section(section: str, chunk_size: int, overlap: int) -> list[str]:
+def _split_section(
+    section: str,
+    title: str,
+    chunk_size: int,
+    overlap: int,
+) -> list[str]:
     """
     One `##` section as one chunk where it fits, or several where it doesn't.
 
-    Every piece keeps the section heading, so a chunk taken from the middle of
-    a long section still says what it is about. The heading counts against
-    `chunk_size` — the cap is the cap.
+    Every piece keeps the document title and the section heading, so a chunk
+    taken from the middle of a long section still says what it is about and
+    which guide it came from. Both count against `chunk_size` — the cap is the
+    cap.
+
+    The title is the part that is easy to leave out and expensive to leave out.
+    `## What to see` is a heading ten of these guides share, so on its own it
+    identifies nothing; `Halden Bay` plus that heading identifies exactly one
+    section in the corpus.
     """
     section = section.strip()
     if not section:
         return []
-    if len(section) <= chunk_size:
-        return [section]
+
+    # The document's own "# Halden Bay" block already names the document.
+    context = f"{title}\n" if title and not section.startswith("# ") else ""
+
+    if len(context) + len(section) <= chunk_size:
+        return [context + section]
 
     heading, _, body = section.partition("\n")
-    prefix = f"{heading.strip()}\n\n"
+    prefix = f"{context}{heading.strip()}\n\n"
     budget = chunk_size - len(prefix)
 
     windows: list[str] = []
@@ -187,7 +202,7 @@ def _split_section(section: str, chunk_size: int, overlap: int) -> list[str]:
     windows.extend(_pack(pending, budget, "\n\n", 0))
 
     if not windows:
-        return [section]
+        return [context + section]
     return [prefix + window for window in windows]
 
 
@@ -198,14 +213,23 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
     The city_guides documents are sectioned guides, not running prose: every
     `##` heading starts a new subject, and the answer to a question about one
     subject is almost always inside one section. So sections are the unit, and
-    a section that already fits inside CHUNK_SIZE is left alone — 79 of the 98
+    a section that already fits inside CHUNK_SIZE is left alone — 75 of the 98
     sections in this corpus are.
 
-    The rest divide, in this order:
+    The 23 that don't fit divide, in this order:
       1. on paragraph breaks, with no overlap (the break is the topic change);
       2. on sentence boundaries inside an over-long paragraph, carrying up to
          CHUNK_OVERLAP characters of whole sentences forward;
       3. on a character count, only if one sentence is longer than the budget.
+
+    Every chunk carries its document title and section heading, both counted
+    against CHUNK_SIZE. The title is what makes the chunks findable. Halden
+    Bay's "What to see" section says "the harbour at 6am when the boats come
+    in" and never says "Halden Bay" — the town name is only in the document's
+    title line. Without the title on the chunk, asking when the boats come in
+    at Halden Bay retrieved the guide's opening paragraph and nine other
+    chunks first, and the one with the answer eleventh. With it, the answer
+    comes back first.
 
     Dividing long sections is a gain, not a loss. `guide_accessibility.md`'s
     "Straightforward" section is 708 characters of three unrelated towns; split,
@@ -224,6 +248,12 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
     chunks: list[Chunk] = []
 
     for doc in documents:
+        # The document's first line is its title — "# Halden Bay". Every chunk
+        # gets it, because the section headings alone don't say which guide
+        # they belong to.
+        lines = doc.text.strip().splitlines()
+        title = lines[0].lstrip("#").strip() if lines else ""
+
         # Splitting on the heading consumes the "##", so put it back. The first
         # piece is the document's own "# Title" block and already has its own.
         pieces = doc.text.split("\n\n##")
@@ -231,7 +261,7 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
 
         index = 0
         for section in sections:
-            for text in _split_section(section, chunk_size, overlap):
+            for text in _split_section(section, title, chunk_size, overlap):
                 chunks.append(
                     Chunk(
                         text=text,

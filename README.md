@@ -68,34 +68,45 @@ difficult and it is better to know in advance.
 **Chunk 2** — source: guide_corry_vale.md#4 `` — produced by: `` chunker.py::split_documents
 
 ```
-## What to see
+Corry Vale
+## Eat and drink
 
-The valley itself is the attraction. The footpath network is dense and well marked, and a circuit taking in three of the four villages is about nine miles with 500 metres of ascent. The chapel in the second village is 12th century and always unlocked.
+One pub in the largest village serves food seven days a week. A second, in the third village, opens Thursday to Sunday. There is afarm shop at the valley mouth that sells bread, cheese and little else, and it closes at 4pm. Bring supplies; this is not a place with options.
 ```
 
 **Chunk 3** — source: guide_givens_mill.md#2 `` — produced by: `` chunker.py::split_documents
 
 ```
-## Getting around
+Elder Ness
+## Practical notes
 
-Everything is on one street along the river. The mill is at one end and the church at the other, eight minutes apart. The riverside path continues in both directions for as far as you want to walk.
+Cash is still useful at the market and in smaller places, though cards are
+accepted almost everywhere now. Mobile coverage is good in the centre and
+patchy on the outskirts. The nearest full hospital is in Brightwater; there is
+a minor injuries unit locally with limited hours.
 ```
 
 **Chunk 4** — source: guide_marchwood.md#2 `` — produced by: `` chunker.py::split_documents
 
 ```
-## Getting around
+Kestrelford
+## Practical notes
 
-A tram network of four lines, running every 8 minutes on weekdays and every 15 at weekends, until midnight. A day ticket costs less than two single fares and nobody tells you this at the machine. The centre is walkable but the interesting districts are not adjacent to each other.
+Cash is still useful at the market and in smaller places, though cards are
+accepted almost everywhere now. Mobile coverage is good in the centre and
+patchy on the outskirts. The nearest full hospital is in Brightwater; there is
+a minor injuries unit locally with limited hours.
 ```
 
 **Chunk 5** — source: guide_seasons.md#0`` — produced by: `` chunker.py::split_documents
 
 ```
-# When to visit the region
+Getting around the region
+## Driving
 
-For each one, ask: could someone answer a question using only this,
-without reading what came before or after?
+Parking is the constraint rather than driving. Both Halden Bay lots fill by
+10am on summer weekends. Kestrelford's lower car park is free and involves a
+steep walk up.
 ```
 
 ## Sample Answer
@@ -104,13 +115,20 @@ without reading what came before or after?
      visible. Milestone 4. -->
 
 **Question:**
+How long is the seafront in Pellow Sands? Answer using only the information in the documents below. If they don't cover it, say you don't have enough information.
+
 
 **Answer:**
 
 ```
+The seafront in Pellew Sands is two miles long (guide_accessibility.md and guide_pellew_sands.md).
+
+Sources retrieved: guide_accessibility.md, guide_pellew_sands.md
 ```
 
 **My relevance cutoff:**
+
+The group of distances for the correct answers ranged from 0.191 to 0.598, while the group for out of scope answers ranged from 0.754 to 0.899. I selected my relevance cutoff to be 0.676. I selected this number because it was right in the middle of the farthest correctly answered question(0.598) and the closest incorrectly answered question(0.754). Taking the average of these numbers returns a relevance cutoff that would be equally weigh and hopefully avoid refusing to answer a question the system successfully found the answer to, and confidently giving an incorrect answer.
 
 <!-- The number you set in config.py, and how you got there.
 
@@ -122,8 +140,17 @@ without reading what came before or after?
      Milestone 4. -->
 
 | Question | In corpus? | Best distance |
-|---|---|---|
-|  |  |  |
+|When is accomodation in Brightwater expensive?|yes|0.353|
+|When should I visit Cory Vale|yes|0.598|
+|What time do the boats come in in Halden Bay|yes|0.232|
+|In Marchwood, what time do trains to Brightwater stop?|yes|0.191|
+|Since what year has the covered market been operating in Marchwood?|yes|0.404|
+|What is the capital of Mongolia?|no|0.754|
+|How do I change the oil of a diesel engine?|no|0.882|
+|Who won the 1994 World Cup?|no|0.899|
+|What is the recommended dosage of ibuprofen for a headache?|no|0.818|
+|How do I write a for loop in Rust?|no|0.814|
+
 
 ## How I Used AI
 
