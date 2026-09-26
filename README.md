@@ -201,15 +201,68 @@ I didn't intend for Claude to do this, but I asked Claude a question about the "
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. None of the chunks are more than 350 characters |max <= 350| 5/5 | 5/5 | 5/5 | MET |
+| 5. The source named in the answer contains the answer | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
      Name the file and function that produced it. -->
+
+Criterion 1(Retrieved chunk contains the answer):
+
+### When is accomodation in Brightwater expensive? — run 1
+
+```
+Accommodation is thin and expensive during graduation week and in early September. Outside those windows there is more supply than demand. The two hotels on the riverside are the obvious choice and the guesthouses on Corry Lane are better value.
+```
+
+File(s) and Function(s): inspect_retrieval.py, store.py::search, chunker.py::split_documents
+
+Criterion 2(Answer names a source):
+
+```
+Accommodation in Brightwater is expensive during graduation week and in early September (guide_brightwater.md).
+```
+
+File(s) and Function(s): run_eval.py::main
+
+Criterion 3(Gate stops out-of-corpus):
+
+Out-of-scope questions (the gate should refuse these):
+  refused  (best distance 0.754)  What is the capital of Mongolia?
+  refused  (best distance 0.882)  How do I change the oil in a diesel engine?
+  refused  (best distance 0.899)  Who won the 1994 World Cup?
+  refused  (best distance 0.818)  What is the recommended dosage of ibuprofen for a headache?
+  refused  (best distance 0.814)  How do I write a for loop in Rust?
+  -> gate refused 5 of 5
+
+File(s) and Function(s): run_eval.py::check_out_of_scope
+
+Criterion 4(No chunk over 350):
+124 chunks, 256 characters on average (shortest 23, longest 350), produced by chunker.py::split_documents
+
+From: python chunker.py
+File(s) and Function(s): chunker.py::split_documents, summary line by chunker.py::describe
+
+Criterion 5(Source named is correct):
+### When is accomodation in Brightwater expensive? — run 1
+
+- Best distance: 0.3529 (passed the gate)
+- Sources retrieved: guide_brightwater.md, guide_regional_transport.md
+
+```
+Accommodation in Brightwater is expensive during graduation week and in early September (guide_brightwater.md).
+```
+
+chunk from guide_brightwater.md#7 that contains it:
+
+Accommodation is thin and expensive during graduation week and in early September. Outside those windows there is more supply than demand. The two hotels on the riverside are the obvious choice and the guesthouses on Corry Lane are better value.
+
+File(s) and Function(s): run_2026-09-26_1329_before.md, scorer.py::judge
+
 
 ## Verdicts
 
@@ -224,11 +277,11 @@ I didn't intend for Claude to do this, but I asked Claude a question about the "
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunk contains the answer | MET | `scorer.py::criterion_1_retrieval` checks whether the `expects` phrase appears in the text of any retrieved chunk. All 5 questions passed on all 3 runs, against a target of 4. Retrieval is deterministic, so the same 5/5 goes in all three run columns. |
+| 2 | Every answer names a source | MET | `scorer.py::criterion_2_source` checks whether any retrieved source filename appears in the answer text. It passed on all 15 runs, so every answer named at least one document. |
+| 3 | Gate stops out-of-corpus questions | MET | `run_eval.py::check_out_of_scope` put all 5 OUT_OF_SCOPE questions through the gate in one deterministic pass. All 5 were refused, with best distances from 0.754 to 0.899 — all well above my 0.676 cutoff. |
+| 4 | None of the chunks are more than 350 characters | MET | `python chunker.py` reports 124 chunks with the longest at 350, which covers every chunk rather than only the 5 retrieved per question. I tested with `<=` because the criterion says no more than 350, and my longest chunk is exactly 350. |
+| 5 | The source named in the answer contains the answer | MET | `scorer.py::criterion_5_source_check` finds which retrieved documents actually contain the `expects` phrase, then checks that the answer named one of them. It passed on all 15 runs. For the 1863 question two documents contain the answer, and I counted naming either one as correct. |
 
 ## Diagnoses
 
