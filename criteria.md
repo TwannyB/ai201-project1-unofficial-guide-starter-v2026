@@ -91,22 +91,16 @@ of 'questions.py'
 ## 5. Your choice
 
 Response time doesn't exceed 20 seconds.
-<!-- YOU WRITE THIS ONE TOO.
-
-     Pick something you actually care about getting right. It could be about
-     speed, about refusals, about a particular kind of question your corpus
-     handles badly, about source attribution being correct rather than merely
-     present — anything, as long as it names a number or an observable
-     outcome. -->
-
-
 
 **Why this target:**
-<!-- There should definitely be a set limit for how long it can take to get a response
-before the search times out, otherwise it could take forever. Also, any more than 20 seconds is inconvenient and it might be better to simply restart the search or decide that the documents don't contain the necessary information for the question. Any lower of a time might not be long enough for the search to get a result.
--->
 There should definitely be a set limit for how long it can take to get a response
 before the search times out, otherwise it could take forever. Also, any more than 20 seconds is inconvenient and it might be better to simply restart the search or decide that the documents don't contain the necessary information for the question. Any lower of a time might not be long enough for the search to get a result.
+> **Revised in unit 2:** For all 5 of my test questions, the source named in the answer is a document that actually contains the answer and not just a document that was retrieved.
+         
+> **Why revised:** My previous criterion couldn't be measured since when answers are
+> returned without timing information.  The new criterion scores something the scorer
+> can actually see.
+
 
 
 
