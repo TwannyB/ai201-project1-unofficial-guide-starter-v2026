@@ -167,11 +167,21 @@ The group of distances for the correct answers ranged from 0.191 to 0.598, while
 
      Milestone 5. -->
 
+
 **1.**
-I asked Claude to write the chunking function for me twice. The first time, I'd already handcoded a chunking method that split the documents into chunks wherever there was the pattern "\n\n##", which I observed was where subsection separations were. I then realized that I didn't include the set chunk size and chunk overlap, so I had Claude implement a strategy that followed both of those preset config variables. I then had Claude investigate why the answers I was getting from the system still seeemed to only be slightly relevant to the questions that I was asking, and Claude suggested that the chunking process currently removes the exact city the chunk's information was referring to. I then had Claude implement a new strategy that built off of the old strategy by appending the title(city) of the chunk to the beginning of each chunk. This improved answers drastically, and I didn't make any changes to new strategy Claude wrote for me. 
+(UNIT 2)I wrote scorer.py by hand on purpose so that I would understand it, and used Claude to review each version instead of writing it for me. It caught three things I had wrong. My judge function returned (bool, DETAIL) as a tuple, which would have crashed run_eval.py on the first question after already spending an API call. My criterion_2_source checked whether the Result objects had a .source attribute rather than whether the answer text named one, so it could never return False. And my criterion_4_chunk_size compared the chunker's output against config.CHUNK_SIZE, the same value the chunker uses to build the chunks, which made it a check that could never fail — I changed it to compare against a literal 350 so it fails if the config drifts away from what criteria.md promises. I also turned down Claude's suggestion to add an atexit handler that dumps per-criterion results, because the assignment only asks for a function that returns a bool and it was more machinery than I needed.
 
 **2.**
-I didn't intend for Claude to do this, but I asked Claude a question about the "retrieve" command in the terminal written for the project and why it didn't return the full chunk with it, and Claude created a "inspect_retrieval.py" for me to see the embedding distance from the query, along with the full chunk. I didn't make any changes to what Claude created.
+I hand-coded the first chunking function myself, splitting each document wherever the pattern "\n\n##" appeared, because that's where the subsection breaks are in these guides. I then realized I had set CHUNK_SIZE and CHUNK_OVERLAP in config.py and never actually used either one, and I couldn't work out how to add them without losing the section-based split, so I asked Claude to do it. Before writing anything it measured my corpus and reported that the median section was 282 characters and the longest was 708, which confirmed 350 was a reasonable cap rather than a guess.
+
+What came back had a problem I only saw because we looked at the real output: the first version carried overlap across paragraph breaks, so a sentence about Thornby Wells ended up glued onto the front of Marchwood's chunk in guide_accessibility.md. I had it suppress overlap at paragraph breaks and only apply overlap inside a paragraph that was too long on its own.
+
+Later I asked why the answers were still only loosely relevant. Claude found that chunks carried the section heading but not the city name — "## What to see" is a heading ten of my guides share, so the chunk holding "the harbour at 6am when the boats come in" never said "Halden Bay" anywhere in it. Attaching the document title to every chunk moved the answer chunk for my five questions from ranks #16, not-in-top-20, #11, #5 and #1 to rank 1 for all five. I told Claude to hold that change at first because I thought it belonged to a later unit, then decided it was in scope and had it applied.
+
+
+
+**3.**
+I didn't intend for Claude to do this one. I asked why the built-in retrieve command didn't show the full chunk text, and rather than just answering, Claude wrote inspect_retrieval.py — which prints the full chunk, its distance, and whether it contains the expected answer. I kept it and used it for my criterion 1 evidence, but I hadn't asked for a new file, and it is one more thing in the repo that I have to be able to explain.
 
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
@@ -303,12 +313,29 @@ File(s) and Function(s): run_2026-09-26_1329_before.md, scorer.py::judge
 
      Milestone 3. -->
 
+All five of the criterion were met for my system. All 15 runs passed, and the gate refused 5 of 5. 
+
+I wouldn't consider the first criterion, that the retrieved chunks contain the answer, to be safe because before I made large changes to the system in Unit one, it failed the criterion badly. I originally had the document splitting function make chunks by dividing on the pattern "\n\n##", which chunked without labeling the chunks by their document title. The chunk that contained the answer was ranked at #16 before the change to the chunking mechanism was made. This made a lot the chunks received only slightly relevant or completely irrelevant to the question asked.
+
+The second criterion(Answer names a source) can be considered safe because generate.py's GROUNDING_INSTRUCTION explicitly has the model name the document the answer came from.
+
+The third criterion(Gate stops out of corpus) wasn't safe since the closest out of scope question was 0.754, which is close to the set relevance cutoff of 0.676.
+
+The fourth criterion(No chunk over the size 350 chars) can now be considered safe since the chunker enforces it when chunking the documents.
+
+The fifth criterion(Source named is correct) wasn't too safe because there wasn't anything coded into the project that forced the model to cite the file that actually held the answer it retrieved.
+
+If I was to tighten a criterion,  I'd tighten criterion 3 from "the gate refuses at least 4 of 5" to "the gate refuses all 5, and every out-of-scope question's best distance is at least 0.1 above the cutoff." My closest out-of-scope question is 0.754 against a 0.676 cutoff — only 0.078 of headroom — so the tightened version would fail, which is the point: the original target passed without testing how close the system actually came.
+
 ## The Improvement
 
-**What I changed:**
+**What I changed:** I'm changing the TOP_K value from 5 to 3 
+
+
+
 
 **Why I picked it:**
-
+I picked it because all five answers are at rank 1, so 4 of every 5 chunks in the prompt are noise. 
 <!-- Connect it to a specific diagnosis above in one sentence. If you can't,
      you picked a fix because it sounded impressive. -->
 
@@ -319,13 +346,15 @@ File(s) and Function(s): run_2026-09-26_1329_before.md, scorer.py::judge
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. None of the chunks are more than 350 characters | max <= 350 | 350 | 350 | 350 | MET |
+| 5. The source named in the answer contains the answer | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
 **Did it help?**
+
+No, it didn't help since the verdict s stayed the same. However, we retrieved less chunks and still got the correct answer, so the additional 2 chunks were likely noise. 
 
 <!-- Say plainly whether it did, and how you know. If it made things worse,
      say that — a change that backfired, honestly reported, earns full credit
@@ -344,9 +373,12 @@ File(s) and Function(s): run_2026-09-26_1329_before.md, scorer.py::judge
 
      Milestone 5. -->
 
+Corry Vale is still 0.078 from being refused. It passes, but barely. It could be because I mispelled Corry Vale in the questions.py file, so I'll fix the spelling. 
+
 ## What I'd Do Differently
 
 <!-- Knowing what you know now — which of your five criteria would you write
      differently, and why?
 
      Milestone 5. -->
+I'd write criterion 4 differently. "None of the chunks are more than 350 characters" is a property the chunker enforces by construction, so maybe it'd be better to replace it with a criterion about the quality of the chunks. An example of a better criterion might be to make sure that at least 4 of the 5 chunks read as a complete thought without cutting off sentences on either end. 
